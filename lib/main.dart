@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:go_router/go_router.dart';
 
+import 'config/configure.dart';
+
 void main() {
   setUrlStrategy(PathUrlStrategy());
   runApp(MyApp());
@@ -62,7 +64,9 @@ class Page2 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Page 2')),
+      appBar: getPlatformSpecificAppBar(
+        title: const Text('Page 2'),
+      ),
       body: TextButton(
         child: const Text('/page-3'),
         onPressed: () => GoRouter.of(context).go('/page-2/page-3'),
@@ -77,7 +81,9 @@ class Page3 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Page 3')),
+      appBar: getPlatformSpecificAppBar(
+        title: const Text('Page 3'),
+      ),
     );
   }
 }
