@@ -1,0 +1,33 @@
+name: Deploy to Firebase Hosting
+
+on: [ push, pull_request, workflow_dispatch ]
+
+jobs:
+  build_and_preview:
+    name: Build and Preview on ${{ matrix.runner }} using Flutter ${{ matrix.ref }}
+    strategy:
+      matrix:
+        runner: [ ubuntu-22.04 ]
+        ref: [ stable, beta ]
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup Flutter
+        uses: hrishikesh-kadam/setup-flutter@v1
+        with:
+          ref: ${{ matrix.ref }}
+      - run: flutter pub get
+      - run: dart analyze
+      - run: flutter build web
+      - run: |
+          if [[ $GITHUB_EVENT_NAME == "push" ]]; then
+            echo "CHANNEL_ID=${GITHUB_REF_NAME}-${{ matrix.ref }}" >> $GITHUB_ENV
+          elif [[ $GITHUB_EVENT_NAME == "pull_request" ]]; then
+            echo "CHANNEL_ID=${GITHUB_HEAD_REF}-${{ matrix.ref }}" >> $GITHUB_ENV
+          fi
+      - uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_BACK_BUTTON_APP_BAR_HISTORY }}
+          projectId: back-button-app-bar-history
+          channelId: ${{ env.CHANNEL_ID }}
